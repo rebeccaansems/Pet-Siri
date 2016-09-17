@@ -29,22 +29,45 @@ public class CatCommands : MonoBehaviour {
 
         if (runAway)
         {
-            cat.transform.Translate(Vector3.forward * Time.deltaTime * 10);
-
-            if (cat.transform.position.z > 100)
+            if (cat.transform.position.z > 200)
             {
                 Vector3 rot = cat.transform.rotation.eulerAngles;
                 rot = new Vector3(rot.x, rot.y + 180, rot.z);
                 cat.transform.rotation = Quaternion.Euler(rot);
-                catTurned = true;
                 FoodExplosion();
+                catTurned = true;
             }
-
+            
             if (cat.transform.position.z < 0 && catTurned)
             {
                 runAway = false;
                 cat.GetComponent<Animator>().SetInteger("CatCommands", 0);
                 catTurned = false;
+            }
+            else if (cat.transform.position.z < 20 && catTurned)
+            {
+                cat.GetComponent<Animator>().SetInteger("CatCommands", 2);
+            }
+            else if (cat.transform.position.z < 0)
+            {
+                cat.transform.rotation = Quaternion.RotateTowards(cat.transform.rotation, _targetRotation, turningRate * Time.deltaTime);
+            }
+
+            if ((cat.transform.rotation.y == 0 || cat.transform.rotation.y == 360) && !catTurned)
+            {
+                cat.GetComponent<Animator>().SetInteger("CatCommands", 3);
+                cat.transform.Translate(Vector3.forward * Time.deltaTime * 20);
+            }
+            else if (catTurned)
+            {
+                if(cat.GetComponent<Animator>().GetInteger("CatCommands") == 2)
+                {
+                    cat.transform.Translate(Vector3.forward * Time.deltaTime * 5);
+                }
+                else
+                {
+                    cat.transform.Translate(Vector3.forward * Time.deltaTime * 20);
+                }
             }
         }
 
@@ -53,6 +76,16 @@ public class CatCommands : MonoBehaviour {
         {
             cat.GetComponent<Animator>().SetInteger("CatCommands", 0);
         }
+    }
+
+    // Maximum turn rate in degrees per second.
+    public float turningRate = 30f;
+    // Rotation we should blend towards.
+    private Quaternion _targetRotation = Quaternion.Euler(0, 0, 0);
+    // Call this when you want to turn the object smoothly.
+    public void SetBlendedEulerAngles(Vector3 angles)
+    {
+        _targetRotation = Quaternion.Euler(angles);
     }
 
     void CommandHeard(string command)
@@ -69,9 +102,6 @@ public class CatCommands : MonoBehaviour {
             cat.GetComponent<Animator>().SetInteger("CatCommands", 2);
             runAway = true;
             catTurned = false;
-            Vector3 rot = cat.transform.rotation.eulerAngles;
-            rot = new Vector3(rot.x, rot.y + 180, rot.z);
-            cat.transform.rotation = Quaternion.Euler(rot);
         }
     }
 
@@ -80,9 +110,12 @@ public class CatCommands : MonoBehaviour {
     void FoodExplosion()
     {
         int foodItem = Random.Range(0, 4);
-        for(int i=0; i< Random.Range(350, 500); i++)
+        if (!catTurned)
         {
-            Instantiate(food[foodItem], new Vector3(Random.Range(-15, 15), Random.Range(500, 650), Random.Range(-35, 15)), Quaternion.identity);
+            for (int i = 0; i < Random.Range(750, 1000); i++)
+            {
+                Instantiate(food[foodItem], new Vector3(Random.Range(-50, 50), Random.Range(750, 1000), Random.Range(-65, 50)), Quaternion.identity);
+            }
         }
     }
 }
