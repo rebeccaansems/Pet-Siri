@@ -3,10 +3,11 @@ using System.Collections;
 using System;
 using UnitySpeechToText.Services;
 
-public class CatCommands : MonoBehaviour {
+public class CatCommands : MonoBehaviour
+{
 
-    public GameObject cat;
-    bool runAway = false, catTurned = false;
+    public GameObject cat, kitten;
+    bool runAway = false, catTurned = false, getFriend = false, catHidden = false;
     public WatsonStreamingSpeechToTextService m_SpeechToTextService;
 
     // Use this for initialization
@@ -19,7 +20,8 @@ public class CatCommands : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
 
         if (Input.GetKey(KeyCode.Q))
         {
@@ -33,10 +35,17 @@ public class CatCommands : MonoBehaviour {
                 Vector3 rot = cat.transform.rotation.eulerAngles;
                 rot = new Vector3(rot.x, rot.y + 180, rot.z);
                 cat.transform.rotation = Quaternion.Euler(rot);
-                FoodExplosion();
+                if (getFriend)
+                {
+                    catHidden = true;
+                }
+                else 
+                {
+                    FoodExplosion();
+                }
                 catTurned = true;
             }
-            
+
             if (cat.transform.position.z < 0 && catTurned)
             {
                 runAway = false;
@@ -59,7 +68,7 @@ public class CatCommands : MonoBehaviour {
             }
             else if (catTurned)
             {
-                if(cat.GetComponent<Animator>().GetInteger("CatCommands") == 2)
+                if (cat.GetComponent<Animator>().GetInteger("CatCommands") == 2)
                 {
                     cat.transform.Translate(Vector3.forward * Time.deltaTime * 5);
                 }
@@ -70,11 +79,27 @@ public class CatCommands : MonoBehaviour {
             }
         }
 
+        if (getFriend && catHidden)
+        {
+            KittenFriendRun();
+        }
+
         //reset animation
         if (cat.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Jump")
             || cat.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("IdleSit"))
         {
             cat.GetComponent<Animator>().SetInteger("CatCommands", 0);
+        }
+    }
+
+    void KittenFriendRun()
+    {
+        kitten.GetComponent<Animator>().SetInteger("CatCommands", 3);
+        kitten.transform.Translate(Vector3.forward * Time.deltaTime * 20);
+        if(kitten.transform.position.z < -100)
+        {
+            catHidden = false;
+            kitten.transform.position = new Vector3(1, -0.62f, 220);
         }
     }
 
@@ -90,7 +115,7 @@ public class CatCommands : MonoBehaviour {
 
     void CommandHeard(string command)
     {
-        if (command.Contains("jump")|| command.Contains("john"))//jump
+        if (command.Contains("jump") || command.Contains("john"))//jump
         {
             cat.GetComponent<Animator>().SetInteger("CatCommands", 1);
         }
@@ -103,6 +128,14 @@ public class CatCommands : MonoBehaviour {
             cat.GetComponent<Animator>().SetInteger("CatCommands", 2);
             runAway = true;
             catTurned = false;
+            getFriend = false;
+        }
+        else if ((command.Contains("friend")|| command.Contains("brenda")) && !runAway)//fetch
+        {
+            cat.GetComponent<Animator>().SetInteger("CatCommands", 2);
+            runAway = true;
+            catTurned = false;
+            getFriend = true;
         }
     }
 
