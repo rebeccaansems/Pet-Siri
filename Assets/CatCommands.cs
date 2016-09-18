@@ -99,7 +99,7 @@ public class CatCommands : MonoBehaviour
         if(kitten.transform.position.z < -100)
         {
             catHidden = false;
-            kitten.transform.position = new Vector3(1, -0.62f, 220);
+            kitten.transform.position = new Vector3(-1, -0.62f, 220);
         }
     }
 
