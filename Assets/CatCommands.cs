@@ -20,15 +20,6 @@ public class CatCommands : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        if (OVRInput.Get(OVRInput.Button.DpadUp) || Input.GetKey(KeyCode.W))
-        {
-            CommandHeard("Jump");
-        }
-
-        if (OVRInput.Get(OVRInput.Button.DpadLeft) || Input.GetKey(KeyCode.D))
-        {
-            CommandHeard("Fetch");
-        }
 
         if (Input.GetKey(KeyCode.Q))
         {
@@ -80,7 +71,8 @@ public class CatCommands : MonoBehaviour {
         }
 
         //reset animation
-        if (cat.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Jump"))
+        if (cat.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Jump")
+            || cat.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("IdleSit"))
         {
             cat.GetComponent<Animator>().SetInteger("CatCommands", 0);
         }
@@ -102,10 +94,11 @@ public class CatCommands : MonoBehaviour {
         {
             cat.GetComponent<Animator>().SetInteger("CatCommands", 1);
         }
-        else if (command.Contains("Meow"))
+        else if (command.Contains("sit"))
         {
+            cat.GetComponent<Animator>().SetInteger("CatCommands", 4);
         }
-        else if ((command.Contains("fetch") || command.Contains("that")) && !runAway)//fetch
+        else if ((command.Contains("away")) && !runAway)//fetch
         {
             cat.GetComponent<Animator>().SetInteger("CatCommands", 2);
             runAway = true;
